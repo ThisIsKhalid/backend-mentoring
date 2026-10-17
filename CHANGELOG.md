@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v6.0.0] - Production Security Hardening & Rate Limiting
+
+### 🎯 Educational Goal
+Learn essential backend defensive engineering to protect web applications against common web vulnerabilities, brute-force password cracking, NoSQL query injection, and denial-of-service (DDoS) flooding.
+
+### 📦 New Dependencies
+- `helmet`: Sets secure HTTP headers (`X-Content-Type-Options`, `Strict-Transport-Security`, `X-Frame-Options`, etc.).
+- `express-rate-limit`: IP-based request throttling.
+- `express-mongo-sanitize`: Sanitizes user input to prevent MongoDB operator injection.
+
+### 📁 Files Added
+- `src/middleware/rateLimiter.js`:
+  - `globalLimiter`: Throttles all `/api` endpoints to 100 requests per 15-minute window per IP.
+  - `authLimiter`: Strict limiter capping `/api/auth/login` and `/api/auth/register` to 10 requests per 15-minute window per IP to block credential-stuffing bots.
+
+### ✏️ Files Modified
+- `server.js`:
+  - Integrated `helmet` with `crossOriginResourcePolicy: { policy: 'cross-origin' }` so frontend clients can display uploaded media.
+  - Added `express-mongo-sanitize` to strip prohibited `$` query injection payloads.
+  - Added payload body size limits (`10kb`) on `express.json()` and `express.urlencoded()`.
+  - Configured CORS with environment-driven `CORS_ORIGIN` support.
+  - Mounted `globalLimiter` on `/api` and `authLimiter` on auth routes.
+- `.env.example` & `.env`: Added `CORS_ORIGIN`.
+
+---
+
 ## [v5.0.0] - File Uploads & Media Management (`multer` & Static Serving)
 
 ### 🎯 Educational Goal
@@ -26,22 +52,12 @@ Learn how backends handle `multipart/form-data` uploads (such as images), valida
 - `server.js`: Mounted `express.static()` to serve `/uploads` publicly and registered `/api/upload` router.
 - `.gitignore`: Added `uploads/*` and `!uploads/.gitkeep` so user-uploaded binary images are not tracked in git.
 
-### 🌐 New Endpoints
-| HTTP Method | Endpoint | Access | Body Type | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/api/upload` | Protected | `multipart/form-data` (field: `image`) | Upload single image, returns `{ filePath: '/uploads/...' }` |
-| `POST` | `/api/upload/product/:id` | Protected | `multipart/form-data` (field: `image`) | Upload image and update product's `imageUrl` in MongoDB |
-
 ---
 
 ## [v4.0.0] - Relational Data & MongoDB Aggregation Pipeline (`$lookup`, `$group`, `$unwind`)
 
 ### 🎯 Educational Goal
 Learn how to model relational data in NoSQL databases using normalized references (`userId`, `productId`) and perform complex data queries and joins with the **MongoDB Aggregation Framework** instead of multiple sequential queries.
-
-### 📁 Files Added
-- `src/controllers/orderController.js`: Order creation, `$match` + `$lookup` joins, and analytics calculations.
-- `src/routes/orderRoutes.js`: Order endpoints with customer and admin access controls.
 
 ---
 
