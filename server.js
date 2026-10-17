@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { connectDB } from './src/config/db.js';
 import productRoutes from './src/routes/productRoutes.js';
+import { errorHandler } from './src/middleware/errorHandler.js';
+import { ApiError } from './src/utils/apiError.js';
 
 dotenv.config();
 
@@ -23,17 +25,17 @@ app.use('/api/products', productRoutes);
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Backend Teaching API (v1 - Native MongoDB Driver) is running!',
+    message: 'Backend Teaching API (v2 - Advanced Querying & Error Handling) is running!',
   });
 });
 
-// 404 Handler for undefined routes
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Cannot ${req.method} ${req.originalUrl} - Route not found`,
-  });
+// [v2 NEW]: 404 handler throws ApiError to be handled centrally
+app.use((req, res, next) => {
+  next(new ApiError(404, `Cannot ${req.method} ${req.originalUrl} - Route not found`));
 });
+
+// [v2 NEW]: Centralized Error Handling Middleware (must be registered after all routes)
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`[Server] Listening on http://localhost:${PORT}`);

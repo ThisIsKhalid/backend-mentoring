@@ -1,43 +1,47 @@
-# Backend Mentoring & Teaching — Version 1 (`v1`)
+# Backend Mentoring & Teaching — Version 2 (`v2`)
 
-> **v1 Milestone**: Express.js REST API with the official **Native MongoDB Driver (`mongodb`)** (No Mongoose).
-
-## 🚀 Features in v1
-- **Modern ES Modules** (`import` / `export`)
-- **Native MongoDB Driver (`mongodb`)** via `MongoClient` connection pooling and `getDB()` accessor
-- **Complete CRUD Operations**:
-  - `GET /api/products` — Retrieve all documents using `.find({}).toArray()`
-  - `GET /api/products/:id` — Retrieve single document with `new ObjectId(id)`
-  - `POST /api/products` — Create document with `insertOne()`
-  - `PUT /api/products/:id` — Update document with `updateOne()` using `$set`
-  - `DELETE /api/products/:id` — Delete document with `deleteOne()`
-- **Input & ID Validation**: `ObjectId.isValid(id)`
-- **MVC Architecture**: `src/config/`, `src/controllers/`, `src/routes/`
+> **v2 Milestone**: Advanced Querying (Pagination, Search, Filter, Sort) + Global Error Handling Architecture.
 
 ---
 
-## 🛠️ Setup Instructions
+## 🚀 What's New in `v2`?
 
-### 1. Install dependencies
+Comparing to `v1`:
+- 🚫 **No more repetitive `try...catch`**: Handled automatically via `asyncHandler`.
+- ⚠️ **Centralized Error Handling**: Standardized error responses using custom `ApiError` class and global `errorHandler` middleware.
+- 📄 **Pagination**: Efficient database-level pagination with `.skip()` and `.limit()` plus metadata (`totalItems`, `totalPages`, `hasNextPage`).
+- 🔍 **Fuzzy Text Search**: Case-insensitive name search using MongoDB `$regex`.
+- 🏷️ **Multi-Field Filtering**: Category matching and numerical range filters (`$gte`, `$lte`) for prices.
+- 🔄 **Dynamic Sorting**: `.sort()` with `field:direction` syntax (e.g. `price:asc`, `price:desc`).
+
+For a detailed file-by-file diff, see [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## 🛠️ API Querying Examples in `v2`
+
+| Query Goal | Example Request |
+| :--- | :--- |
+| **Search Products** | `GET /api/products?search=wireless` |
+| **Filter by Category** | `GET /api/products?category=Electronics` |
+| **Filter by Price Range** | `GET /api/products?minPrice=50&maxPrice=250` |
+| **Combine Filters & Search** | `GET /api/products?category=Electronics&inStock=true&maxPrice=500` |
+| **Sort by Cheapest** | `GET /api/products?sort=price:asc` |
+| **Sort by Newest** | `GET /api/products?sort=createdAt:desc` |
+| **Paginate (Page 2, 5 items)** | `GET /api/products?page=2&limit=5` |
+
+---
+
+## 💻 Setup & Run
+
 ```bash
+# 1. Install dependencies
 npm install
-```
 
-### 2. Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
+# 2. Configure environment
 cp .env.example .env
-```
-Ensure your MongoDB instance is running (locally or MongoDB Atlas connection string).
 
-### 3. Run Development Server
-```bash
+# 3. Start development server
 npm run dev
 ```
-
-Server will start at `http://localhost:5000`.
-
----
-
-## 📖 Teaching Guide
-See [steps.md](./steps.md) for the complete pedagogical breakdown and teaching notes.
+Server runs at `http://localhost:5000`.
