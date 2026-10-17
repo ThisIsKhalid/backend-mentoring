@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v3.0.0] - Authentication & Authorization (JWT + bcryptjs + RBAC)
+
+### 🎯 Educational Goal
+Learn how user authentication and security work under the hood without external auth frameworks. Students learn password hashing, token generation/verification, and route protection using Role-Based Access Control (RBAC).
+
+### 📦 New Dependencies
+- `bcryptjs`: Secure salted password hashing.
+- `jsonwebtoken`: Signing and verifying stateless JWTs.
+
+### 📁 Files Added
+- `src/controllers/authController.js`: Registration with unique email check, password hashing, login token issuing, and current user profile retrieval.
+- `src/middleware/authMiddleware.js`:
+  - `protect`: Extracts `Bearer <token>` header, verifies signature, loads `req.user` from native `users` collection without password.
+  - `authorize(...roles)`: Role-Based Access Control (RBAC) guard.
+- `src/routes/authRoutes.js`: Auth endpoints (`/register`, `/login`, `/me`).
+
+### ✏️ Files Modified
+- `src/routes/productRoutes.js`:
+  - `POST /api/products` protected (requires valid login token).
+  - `PUT /api/products/:id` protected (requires valid login token).
+  - `DELETE /api/products/:id` restricted to `admin` role only.
+- `server.js`: Mounted `/api/auth` router.
+- `.env.example` & `.env`: Added `JWT_SECRET` and `JWT_EXPIRES_IN`.
+
+### 🌐 New Endpoints
+| HTTP Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Public | Register new user (body: `name`, `email`, `password`, optional `role`) |
+| `POST` | `/api/auth/login` | Public | Log in and receive JWT token |
+| `GET` | `/api/auth/me` | Protected | Get authenticated user profile (`Bearer <token>`) |
+
+---
+
 ## [v2.0.0] - Advanced Querying & Global Error Handling
 
 ### 🎯 Educational Goal

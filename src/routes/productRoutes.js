@@ -6,18 +6,19 @@ import {
   updateProduct,
   deleteProduct,
 } from '../controllers/productController.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Route: /api/products
-router.route('/')
-  .get(getProducts)
-  .post(createProduct);
+// Public routes: Anyone can browse products
+router.get('/', getProducts);
+router.get('/:id', getProductById);
 
-// Route: /api/products/:id
-router.route('/:id')
-  .get(getProductById)
-  .put(updateProduct)
-  .delete(deleteProduct);
+// [v3 NEW]: Protected routes: Only logged-in users can create or update products
+router.post('/', protect, createProduct);
+router.put('/:id', protect, updateProduct);
+
+// [v3 NEW]: Role-Based route: Only admins can delete products
+router.delete('/:id', protect, authorize('admin'), deleteProduct);
 
 export default router;
