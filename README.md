@@ -1,43 +1,31 @@
-# Backend Mentoring & Teaching — Version 4 (`v4`)
+# Backend Mentoring & Teaching — Version 5 (`v5`)
 
-> **v4 Milestone**: Relational Data & MongoDB Aggregation Pipeline (`$lookup`, `$unwind`, `$group`, `$project`).
-
----
-
-## 🚀 What's New in `v4`?
-
-Comparing to `v3`:
-- 📦 **Relational Data Modeling**: Introduced normalized `orders` collection referencing both `users` (`userId`) and `products` (`items.productId`).
-- 🔗 **NoSQL Joins (`$lookup`)**: Taught students how to join multiple collections dynamically in MongoDB.
-- 💨 **Pipeline Stages (`$unwind` & `$project`)**: Flattens nested document arrays and excludes sensitive fields (e.g., password hashes) in join results.
-- 📊 **Business Analytics (`$group` & `$sum` / `$avg`)**: Real-time sales calculations, total revenue, and average order values.
-
-For a complete history of all versions, see [CHANGELOG.md](./CHANGELOG.md).
+> **v5 Milestone**: File Uploads & Media Management (`multer`, file validation, MongoDB document linking, static file serving).
 
 ---
 
-## 🧭 Branch & Curriculum Roadmap
+## 🚀 What's New in `v5`?
 
-| Branch | Milestone | Focus Area |
-| :--- | :--- | :--- |
-| **`v1`** | **Native Driver CRUD** | `MongoClient`, `insertOne`, `find().toArray()`, `findOne`, `updateOne`, `deleteOne` |
-| **`v2`** | **Querying & Error Handling** | Pagination (`.skip`/`.limit`), `$regex` Search, `$gte`/`$lte` Filters, `ApiError`, `errorHandler` |
-| **`v3`** | **Auth & RBAC** | `users` collection, `bcryptjs` password hashing, `jsonwebtoken` (JWT), `protect` & `authorize` |
-| **`v4`** | **Relational Aggregations** | `orders` collection, `$lookup` joins, `$unwind`, `$group` analytics |
+Comparing to `v4`:
+- 📸 **Multipart Form Data**: Handled file uploads using `multer`.
+- 📁 **Disk Storage Configuration**: Generated collision-proof unique filenames with timestamps (`image-1697541234567.jpg`).
+- 🛡️ **File Type & Size Validation**: Strict regex whitelist (`jpeg|jpg|png|webp|gif`) and 5MB payload limit.
+- 🔗 **MongoDB Document Linking**: Directly updated `products` collection with the relative image URL path (`imageUrl`).
+- 🌐 **Static Asset Serving**: Made `/uploads` folder publicly accessible using `express.static()`.
+
+For full changelog details, see [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 
-## 📡 API Reference in `v4`
+## 📡 API Reference in `v5`
 
-### Orders Endpoints (`/api/orders`)
-All order endpoints require `Authorization: Bearer <TOKEN>`.
+### Upload Endpoints (`/api/upload`)
+Requires `Authorization: Bearer <TOKEN>`. Headers must include `Content-Type: multipart/form-data`.
 
-| Method | Endpoint | Access | Body Payload / Description |
+| Method | Endpoint | Form-Data Field | Description |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/orders` | Customer | `{"items": [{"productId":"...", "quantity":2}]}` — Place an order |
-| `GET` | `/api/orders/my-orders` | Customer | View personal order history with joined product details (`$lookup`) |
-| `GET` | `/api/orders` | Admin Only | View all orders system-wide with joined customer info (`$lookup` + `$unwind`) |
-| `GET` | `/api/orders/stats` | Admin Only | Calculate revenue, total orders, and average order value (`$group`) |
+| `POST` | `/api/upload` | `image` (File) | Uploads image and returns public URL |
+| `POST` | `/api/upload/product/:id` | `image` (File) | Uploads image and updates product document in MongoDB |
 
 ---
 
@@ -53,4 +41,4 @@ cp .env.example .env
 # 3. Start development server
 npm run dev
 ```
-Server runs at `http://localhost:5000`.
+Server runs at `http://localhost:5000`. Uploaded images accessible at `http://localhost:5000/uploads/<filename>`.
