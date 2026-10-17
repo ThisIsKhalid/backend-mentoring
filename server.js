@@ -1,14 +1,21 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import { connectDB } from './src/config/db.js';
 import productRoutes from './src/routes/productRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
 import orderRoutes from './src/routes/orderRoutes.js';
+import uploadRoutes from './src/routes/uploadRoutes.js';
 import { errorHandler } from './src/middleware/errorHandler.js';
 import { ApiError } from './src/utils/apiError.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,17 +27,21 @@ await connectDB();
 app.use(cors());
 app.use(express.json());
 
+// [v5 NEW]: Serve static uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-// [v4 NEW]: Relational Orders & Aggregation Routes
 app.use('/api/orders', orderRoutes);
+// [v5 NEW]: File upload routes
+app.use('/api/upload', uploadRoutes);
 
 // Health check / root endpoint
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Backend Teaching API (v4 - Relational Data & Aggregation Pipeline) is running!',
+    message: 'Backend Teaching API (v5 - File Uploads & Media Management) is running!',
   });
 });
 
