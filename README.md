@@ -1,39 +1,43 @@
-# Backend Mentoring & Teaching — Version 3 (`v3`)
+# Backend Mentoring & Teaching — Version 4 (`v4`)
 
-> **v3 Milestone**: Authentication & Authorization (JWT, bcryptjs, Protected Routes & Role-Based Access Control).
-
----
-
-## 🚀 What's New in `v3`?
-
-Comparing to `v2`:
-- 🔐 **User Registration & Login**: Direct MongoDB `users` collection operations.
-- 🛡️ **Salted Password Hashing**: Passwords are never stored in plain text (hashed via `bcryptjs`).
-- 🎟️ **JSON Web Tokens (JWT)**: Stateless token issuance and verification.
-- 🛑 **Route Protection Middleware**: `protect` middleware ensures only logged-in users with a valid `Bearer <token>` can mutate products.
-- 👑 **Role-Based Access Control (RBAC)**: `authorize('admin')` restricts sensitive actions (e.g. `DELETE /api/products/:id`) to administrators.
-
-For full changes and diffs, see [CHANGELOG.md](./CHANGELOG.md).
+> **v4 Milestone**: Relational Data & MongoDB Aggregation Pipeline (`$lookup`, `$unwind`, `$group`, `$project`).
 
 ---
 
-## 📡 API Reference in `v3`
+## 🚀 What's New in `v4`?
 
-### 1. Authentication (`/api/auth`)
-| Method | Endpoint | Access | Body Payload |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Public | `{"name":"John", "email":"john@example.com", "password":"password123", "role":"admin"}` |
-| `POST` | `/api/auth/login` | Public | `{"email":"john@example.com", "password":"password123"}` |
-| `GET` | `/api/auth/me` | Protected | None (Requires header: `Authorization: Bearer <TOKEN>`) |
+Comparing to `v3`:
+- 📦 **Relational Data Modeling**: Introduced normalized `orders` collection referencing both `users` (`userId`) and `products` (`items.productId`).
+- 🔗 **NoSQL Joins (`$lookup`)**: Taught students how to join multiple collections dynamically in MongoDB.
+- 💨 **Pipeline Stages (`$unwind` & `$project`)**: Flattens nested document arrays and excludes sensitive fields (e.g., password hashes) in join results.
+- 📊 **Business Analytics (`$group` & `$sum` / `$avg`)**: Real-time sales calculations, total revenue, and average order values.
 
-### 2. Products (`/api/products`)
-| Method | Endpoint | Access | Header |
+For a complete history of all versions, see [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## 🧭 Branch & Curriculum Roadmap
+
+| Branch | Milestone | Focus Area |
+| :--- | :--- | :--- |
+| **`v1`** | **Native Driver CRUD** | `MongoClient`, `insertOne`, `find().toArray()`, `findOne`, `updateOne`, `deleteOne` |
+| **`v2`** | **Querying & Error Handling** | Pagination (`.skip`/`.limit`), `$regex` Search, `$gte`/`$lte` Filters, `ApiError`, `errorHandler` |
+| **`v3`** | **Auth & RBAC** | `users` collection, `bcryptjs` password hashing, `jsonwebtoken` (JWT), `protect` & `authorize` |
+| **`v4`** | **Relational Aggregations** | `orders` collection, `$lookup` joins, `$unwind`, `$group` analytics |
+
+---
+
+## 📡 API Reference in `v4`
+
+### Orders Endpoints (`/api/orders`)
+All order endpoints require `Authorization: Bearer <TOKEN>`.
+
+| Method | Endpoint | Access | Body Payload / Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/products` | Public | None |
-| `GET` | `/api/products/:id` | Public | None |
-| `POST` | `/api/products` | Protected | `Authorization: Bearer <TOKEN>` |
-| `PUT` | `/api/products/:id` | Protected | `Authorization: Bearer <TOKEN>` |
-| `DELETE` | `/api/products/:id` | Admin Only | `Authorization: Bearer <ADMIN_TOKEN>` |
+| `POST` | `/api/orders` | Customer | `{"items": [{"productId":"...", "quantity":2}]}` — Place an order |
+| `GET` | `/api/orders/my-orders` | Customer | View personal order history with joined product details (`$lookup`) |
+| `GET` | `/api/orders` | Admin Only | View all orders system-wide with joined customer info (`$lookup` + `$unwind`) |
+| `GET` | `/api/orders/stats` | Admin Only | Calculate revenue, total orders, and average order value (`$group`) |
 
 ---
 
