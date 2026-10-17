@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v4.0.0] - Relational Data & MongoDB Aggregation Pipeline (`$lookup`, `$group`, `$unwind`)
+
+### 🎯 Educational Goal
+Learn how to model relational data in NoSQL databases using normalized references (`userId`, `productId`) and perform complex data queries and joins with the **MongoDB Aggregation Framework** instead of multiple sequential queries.
+
+### 📁 Files Added
+- `src/controllers/orderController.js`:
+  - `createOrder`: Validates product IDs and quantities, verifies products exist, computes totals, and writes an order referencing `userId`.
+  - `getMyOrders`: Uses `$match` and `$lookup` to join the `products` collection, populating live product details.
+  - `getAllOrders`: Multi-stage pipeline using `$lookup`, `$unwind`, and `$project` to join `users` (excluding sensitive password hash) and return complete order records.
+  - `getOrderStats`: Business analytics using `$group` to aggregate `totalRevenue`, `totalOrders`, and `avgOrderValue` by order status.
+- `src/routes/orderRoutes.js`: Order endpoints with customer and admin access controls.
+
+### ✏️ Files Modified
+- `server.js`: Mounted `/api/orders` router.
+
+### 🌐 New Endpoints
+| HTTP Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/orders` | Protected | Place a new order with multiple items: `{"items": [{"productId":"...", "quantity":2}]}` |
+| `GET` | `/api/orders/my-orders` | Protected | View user's past orders with joined product details (`$lookup`) |
+| `GET` | `/api/orders` | Admin Only | View all system orders with customer details (`$lookup` + `$unwind`) |
+| `GET` | `/api/orders/stats` | Admin Only | View analytics, revenue, and average order value (`$group`) |
+
+---
+
 ## [v3.0.0] - Authentication & Authorization (JWT + bcryptjs + RBAC)
 
 ### 🎯 Educational Goal
@@ -30,13 +56,6 @@ Learn how user authentication and security work under the hood without external 
 - `server.js`: Mounted `/api/auth` router.
 - `.env.example` & `.env`: Added `JWT_SECRET` and `JWT_EXPIRES_IN`.
 
-### 🌐 New Endpoints
-| HTTP Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Public | Register new user (body: `name`, `email`, `password`, optional `role`) |
-| `POST` | `/api/auth/login` | Public | Log in and receive JWT token |
-| `GET` | `/api/auth/me` | Protected | Get authenticated user profile (`Bearer <token>`) |
-
 ---
 
 ## [v2.0.0] - Advanced Querying & Global Error Handling
@@ -60,18 +79,6 @@ Eliminate repetitive `try...catch` code across controllers, implement a centrali
 - `server.js`:
   - Mounted `errorHandler` as the final middleware.
   - Updated 404 handler to trigger `next(new ApiError(404, ...))`.
-
-### 🌐 New Query Parameters on `GET /api/products`
-| Parameter | Description | Example |
-| :--- | :--- | :--- |
-| `page` | Page number (default: 1) | `?page=2` |
-| `limit` | Number of items per page (default: 10, max: 100) | `?limit=5` |
-| `search` | Case-insensitive keyword search on product name | `?search=keyboard` |
-| `category` | Filter by category | `?category=Electronics` |
-| `inStock` | Filter by stock availability (`true` / `false`) | `?inStock=true` |
-| `minPrice` | Lower bound price filter (`$gte`) | `?minPrice=50` |
-| `maxPrice` | Upper bound price filter (`$lte`) | `?maxPrice=300` |
-| `sort` | Sort field and order (`field:asc` or `field:desc`) | `?sort=price:asc` |
 
 ---
 
